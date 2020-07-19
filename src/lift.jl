@@ -67,6 +67,8 @@ function maybe_macro(__module__, __source__, expr0)
             return Expr(:return, Expr(:call, Some, lift(ex.args[1])))
         elseif isexpr(ex, :ref)
             return lift(Expr(:call, Maybe.getindex, ex.args...))
+        elseif isexpr(ex, :., 2) && ex.args[2] isa QuoteNode
+            return lift(Expr(:call, Maybe.getproperty, ex.args...))
         elseif isexpr(ex, :., 2) && isexpr(ex.args[2], :tuple)
             throw(ArgumentError("dot-call is not supported yet"))
         elseif isexpr(ex, :do, 2) && isexpr(ex.args[1], :call)

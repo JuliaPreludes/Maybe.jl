@@ -201,6 +201,19 @@ end
     @test (@? vov[1][5]) === nothing
 end
 
+@testset "getproperty" begin
+    x = (a = (b = 1, c = nothing),)
+    @test (@? x.a.b) === Some(1)
+    @test (@? x.a.c) === Some(nothing)
+    @test (@? x.a.c.d) === nothing
+    @test (@? x.a.d) === nothing
+    @test (@? x.d.e) === nothing
+    nthg = nothing
+    @test (@? nthg.a) === nothing
+    n() = nothing
+    @test (@? n().a) === nothing
+end
+
 @testset "destructuring bind" begin
     n() = nothing
     @test (@? begin
