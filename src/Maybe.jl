@@ -28,6 +28,16 @@ if !@isdefined hasproperty
     using Compat: hasproperty
 end
 
+if !@isdefined isnothing
+    using Compat: isnothing
+end
+
+if !isdefined(Base, Symbol("@var_str"))
+    macro var_str(x)
+        return Symbol(x)
+    end
+end
+
 include("utils.jl")
 include("something.jl")
 include("core.jl")
