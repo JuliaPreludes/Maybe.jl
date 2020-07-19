@@ -43,7 +43,9 @@ include("something.jl")
 include("core.jl")
 include("lift.jl")
 include("extras.jl")
-Implementations.finalize_module()
+finalize_implementations()
 end
+
+Implementations.finalize_package()
 
 end
