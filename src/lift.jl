@@ -35,6 +35,9 @@ ensure_maybe(::Nothing) = nothing
 ensure_maybe(x::Some) = x
 ensure_maybe(x) = Some(x)
 
+isdotop(_) = false
+isdotop(x::Symbol) = Base.isoperator(x) && startswith(String(x), ".")
+
 function maybe_macro(__module__, __source__, expr0)
     @gensym END
     callmacro(f, args...) = Expr(:macrocall, f, __source__, args...)
@@ -53,6 +56,7 @@ function maybe_macro(__module__, __source__, expr0)
             dict[:body] = maybe_macro(__module__, __source__, dict[:body])
             return combinedef(dict)
         elseif isexpr(ex, :call)
+            isdotop(ex.args[1]) && throw(ArgumentError("dot-call is not supported yet"))
             excall = liftcall(ex)
             return isexpr(ex.args[1], :$, 1) ? ensure_maybe_expr(excall) :
                    shortcircuit(excall)
@@ -63,6 +67,8 @@ function maybe_macro(__module__, __source__, expr0)
             return Expr(:return, Expr(:call, Some, lift(ex.args[1])))
         elseif isexpr(ex, :ref)
             return lift(Expr(:call, Maybe.getindex, ex.args...))
+        elseif isexpr(ex, :., 2) && isexpr(ex.args[2], :tuple)
+            throw(ArgumentError("dot-call is not supported yet"))
         elseif isexpr(ex, :do, 2) && isexpr(ex.args[1], :call)
             excall = ex.args[1]
             if isexpr(get(excall.args, 1, nothing), :$, 1)

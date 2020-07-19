@@ -3,6 +3,8 @@ module TestLift
 using Maybe
 using Test
 
+include("utils.jl")
+
 @testset "identity" begin
     @test (@? nothing) === Some(nothing)
     @test (@? identity(nothing)) === nothing
@@ -313,6 +315,15 @@ end
         b::Integer = a[:b]
         b + 1
     end) === Some(2)
+end
+
+@testset "dot-call" begin
+    err = ArgumentError("dot-call is not supported yet")
+    @test_throws err @callmacro @? a .+ b
+    @test_throws err @callmacro @? f.(a, b)
+    @test_throws err @callmacro @? g(f.(a, b))
+    @test_throws err @callmacro @? f.(a, b) + c
+    @test_throws err @callmacro @? f(a .+ b)
 end
 
 end  # module

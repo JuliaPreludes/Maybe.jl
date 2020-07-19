@@ -12,3 +12,14 @@ macro jl15_str(code::AbstractString)
         return nothing
     end
 end
+
+macro callmacro(ex)
+    @assert Meta.isexpr(ex, :macrocall)
+    return Expr(
+        :call,
+        ex.args[1],
+        QuoteNode(ex.args[2]),
+        __module__,
+        map(QuoteNode, ex.args[3:end])...,
+    )
+end
