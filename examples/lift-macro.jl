@@ -1,4 +1,4 @@
-# # [Maybe.jl tutorial](@id tutorial)
+# # [`@?` tutorial](@id tutorial)
 
 using Maybe
 
