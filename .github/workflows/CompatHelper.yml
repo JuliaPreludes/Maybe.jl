@@ -1,7 +1,13 @@
 name: CompatHelper
+
 on:
   schedule:
     - cron: 0 0 * * *
+  push:
+    branches:
+      - actions/trigger/CompatHelper
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
