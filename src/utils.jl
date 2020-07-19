@@ -27,6 +27,10 @@ end
 
 define_liftr() = Base.eval(Maybe.Implementations, define_liftr_impl())
 
+function finalize_implementations()
+    define_liftr()
+end
+
 # See ThreadsX.jl
 function define_docstrings()
     docstrings = Pair[:Maybe=>joinpath(dirname(@__DIR__), "README.md")]
@@ -50,13 +54,12 @@ function define_docstrings()
     end
 end
 
-function finalize_module()
+function finalize_package()
     @eval Maybe begin
         const T = Implementations.MaybeType
         const $(Symbol("@something")) = Implementations.$(Symbol("@something"))
         const $(Symbol("@?")) = Implementations.$(Symbol("@?"))
         export $(Symbol("@?"))
     end
-    define_liftr()
     define_docstrings()
 end
