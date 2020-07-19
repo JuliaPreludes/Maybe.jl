@@ -2,6 +2,17 @@ module TestMaybe
 
 using Test
 
+# TODO: move this to Compat.jl
+if try
+    >=(1)
+    false
+catch
+    true
+end
+    @info "Defining `>=(_)`"
+    Base.:(>=)(b) = a -> a >= b
+end
+
 @testset "$file" for file in sort([
     file for file in readdir(@__DIR__) if match(r"^test_.*\.jl$", file) !== nothing
 ])
