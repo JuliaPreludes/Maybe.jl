@@ -1,7 +1,7 @@
     maybe(f) -> f′
 
 Transform ("lift") function `f(::T₁, ..., ::Tₙ) -> ::Union{Some{R}, R,
-Nothing}` to `f′(::Union{T₁, Some{T₁}, Nothing}, ..., ::Union{T₁,
+Nothing}` to `f′(::Union{T₁, Some{T₁}, Nothing}, ..., ::Union{Tₙ,
 Some{Tₙ}, Nothing}) -> ::Union{Some{R}, Nothing}`.
 
 # Examples
