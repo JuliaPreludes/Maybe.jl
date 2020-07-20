@@ -9,13 +9,18 @@ function get end
 function getindex end
 function getproperty end
 
-baremodule X
+# To avoid exporting `Extras` with `using Maybe.Extras`, using a
+# different name:
+baremodule _MaybeExtras_
 export getnested, ifnothing, maybe, defaultto
 function maybe end
 function ifnothing end
 function defaultto end
 function getnested end
 end
+
+const Extras = _MaybeExtras_
+const X = _MaybeExtras_
 
 module Implementations
 using ..Maybe: Maybe

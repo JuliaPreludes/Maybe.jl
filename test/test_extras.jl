@@ -1,6 +1,6 @@
 module TestExtras
 
-using Maybe.X
+using Maybe.Extras
 using Test
 
 @testset "getnested" begin

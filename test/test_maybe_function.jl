@@ -1,6 +1,6 @@
 module TestMaybeFunction
 
-using Maybe.X
+using Maybe.Extras
 using Test
 
 retargs(args...; kwargs...) = (args, kwargs.data)

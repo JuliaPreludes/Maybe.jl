@@ -6,7 +6,7 @@ Nothing}) -> ::Union{Some{R}, Nothing}`.
 
 # Examples
 ```jldoctest
-julia> using Maybe.X
+julia> using Maybe.Extras
 
 julia> const ⊕ = maybe(+);
 
