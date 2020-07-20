@@ -1,8 +1,8 @@
     maybe(f) -> f′
 
 Transform ("lift") function `f(::T₁, ..., ::Tₙ) -> ::Union{Some{R}, R,
-Nothing}` to `f′(::Union{Some{T₁}, Nothing}, ..., ::Union{Some{Tₙ},
-Nothing}) -> ::Union{Some{R}, Nothing}`.
+Nothing}` to `f′(::Union{T₁, Some{T₁}, Nothing}, ..., ::Union{T₁,
+Some{Tₙ}, Nothing}) -> ::Union{Some{R}, Nothing}`.
 
 # Examples
 ```jldoctest
