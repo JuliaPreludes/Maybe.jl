@@ -23,22 +23,4 @@ makedocs(
     ],
 )
 
-# Hack: Replace `Maybe._MaybeExtras_` with `Maybe.Extras`
-for (root, dirs, files) in walkdir(joinpath((@__DIR__), "build"))
-    for name in files
-        path = joinpath(root, name)
-        txt = replace(read(path, String), "_MaybeExtras_" => "Extras")
-        io = try
-            open(path, write = true)
-        catch
-            continue
-        end
-        try
-            write(io, txt)
-        finally
-            close(io)
-        end
-    end
-end
-
 deploydocs(; repo = "github.com/tkf/Maybe.jl", push_preview = true)
