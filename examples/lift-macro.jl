@@ -8,7 +8,7 @@ using Test                                                             #src
 # ## Introduction
 
 # Julia `Base` provides functions `findfirst` and `findlast` that
-# returns an integer when it's found:
+# returns an integer when an element is found:
 
 findfirst(x -> gcd(x, 42) == 21, 50:200)
 
@@ -45,8 +45,8 @@ end
 @assert find_some_random_range_2(50:200) === Some(63:189)
 @assert find_some_random_range_2(30:50) === nothing
 
-# Similarly, `@?` is also useful for indexing of arrays, dictionaries,
-# etc. that may fail.  For example
+# Similarly, `@?` is also useful for indexing into arrays,
+# dictionaries, etc. that may fail.  For example
 
 dict = Dict(:a => 1, :b => nothing, :c => 2)
 @assert (@? dict[:a] + dict[:c]) == Some(3)
@@ -79,7 +79,7 @@ end
 
 # Observe that:
 #
-# (1) If a function returns a `nothing`, the whole evaluation
+# (1) If a function returns `nothing`, the whole evaluation
 # short-circuits and evaluates to `nothing`.  (Side notes:
 # short-circuiting is not actually implemented using `return` in `@?`
 # so that it can be used outside functions.)
@@ -203,7 +203,7 @@ end === Some(2)
     @? dict[:a][:b]
 end === Some(nothing)
 
-# On the other hand, accessing non-existing index returns a `nothing`:
+# On the other hand, accessing non-existing index returns `nothing`:
 
 @assert (@? dict[:a][:d]) === nothing
 @assert (@? dict[:d]) === nothing
