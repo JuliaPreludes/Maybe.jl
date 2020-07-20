@@ -26,6 +26,3 @@ Maybe.X.defaultto(c) = Maybe.X.ifnothing(() -> c)
 @inline Maybe.X.getnested(x, k, keys...) =
     Maybe.X.getnested(@something(Maybe.get(x, k), return), keys...)
 @inline Maybe.X.getnested(x) = Some(x)
-
-Maybe.X.checktype(x::T, ::Type{T}) where {T} = Some(x)
-Maybe.X.checktype(_, ::Type) = nothing
