@@ -20,7 +20,7 @@ Maybe.X.ifnothing(f) = x -> Maybe.X.ifnothing(f, x)
 Maybe.X.ifnothing(f, ::Nothing) = f()
 Maybe.X.ifnothing(_, x::Some) = something(x)
 
-Maybe.X.defaultto(c) = Maybe.X.ifnothing(_ -> c)
+Maybe.X.defaultto(c) = Maybe.X.ifnothing(() -> c)
 
 @inline Maybe.X.getnested(x, k) = Maybe.get(x, k)
 @inline Maybe.X.getnested(x, k, keys...) =
