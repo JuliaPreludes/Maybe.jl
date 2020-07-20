@@ -41,8 +41,8 @@ function define_docstrings()
         name = Symbol(stem)
         if name in names(Maybe, all = true)
             push!(docstrings, name => joinpath(docsdir, filename))
-        elseif name in names(Maybe.X, all = true)
-            push!(docstrings, :(X.$name) => joinpath(docsdir, filename))
+        elseif name in names(Maybe.Extras, all = true)
+            push!(docstrings, :(Extras.$name) => joinpath(docsdir, filename))
         end
     end
     for (name, path) in docstrings

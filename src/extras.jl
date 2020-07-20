@@ -1,4 +1,4 @@
-Maybe.X.maybe(f::F) where {F} = MaybeFunction(f)
+Maybe.Extras.maybe(f::F) where {F} = MaybeFunction(f)
 
 struct MaybeFunction{F} <: Function
     f::F
@@ -16,13 +16,13 @@ end
 @inline _somethings(xs::NamedTuple{names}) where {names} =
     NamedTuple{names}(_somethings(Tuple(xs)))
 
-Maybe.X.ifnothing(f) = x -> Maybe.X.ifnothing(f, x)
-Maybe.X.ifnothing(f, ::Nothing) = f()
-Maybe.X.ifnothing(_, x::Some) = something(x)
+Maybe.Extras.ifnothing(f) = x -> Maybe.Extras.ifnothing(f, x)
+Maybe.Extras.ifnothing(f, ::Nothing) = f()
+Maybe.Extras.ifnothing(_, x::Some) = something(x)
 
-Maybe.X.defaultto(c) = Maybe.X.ifnothing(() -> c)
+Maybe.Extras.defaultto(c) = Maybe.Extras.ifnothing(() -> c)
 
-@inline Maybe.X.getnested(x, k) = Maybe.get(x, k)
-@inline Maybe.X.getnested(x, k, keys...) =
-    Maybe.X.getnested(@something(Maybe.get(x, k), return), keys...)
-@inline Maybe.X.getnested(x) = Some(x)
+@inline Maybe.Extras.getnested(x, k) = Maybe.get(x, k)
+@inline Maybe.Extras.getnested(x, k, keys...) =
+    Maybe.Extras.getnested(@something(Maybe.get(x, k), return), keys...)
+@inline Maybe.Extras.getnested(x) = Some(x)
