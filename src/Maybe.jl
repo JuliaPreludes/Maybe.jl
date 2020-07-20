@@ -10,12 +10,11 @@ function getindex end
 function getproperty end
 
 baremodule X
-export checktype, getnested, ifnothing, maybe, defaultto
+export getnested, ifnothing, maybe, defaultto
 function maybe end
 function ifnothing end
 function defaultto end
 function getnested end
-function checktype end
 end
 
 module Implementations
