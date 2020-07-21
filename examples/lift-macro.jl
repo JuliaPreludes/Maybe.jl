@@ -1,4 +1,4 @@
-# # [`@?` tutorial](@id tutorial)
+# # [How to use `@?`](@id tutorial)
 
 using Maybe
 
@@ -16,7 +16,7 @@ findfirst(x -> gcd(x, 42) == 21, 50:200)
 
 @assert findlast(x -> gcd(x, 42) == 23, 50:200) === nothing
 
-# Using such functions is rather tedious
+# It is rather tedious to combine such functions:
 
 function find_some_random_range_1(data)
     f(x) = gcd(x, 42) == 21
