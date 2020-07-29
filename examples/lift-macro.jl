@@ -253,6 +253,20 @@ end
 @assert first_something(Dict(:c => 3)) == Some(3)
 @assert first_something(Dict(:a => 1, :c => 3)) == Some(1)
 
+# Use `$return(x)` to avoid the returned value to be automatically
+# wrapped by `Some`.  Note that the parentheses are required.
+
+function first_something2(dict)
+    @? $return(dict[:a])
+    @? $return(dict[:b])
+    @? $return(dict[:c])
+    return nothing
+end
+
+@assert first_something2(Dict()) == nothing
+@assert first_something2(Dict(:c => 3)) == 3
+@assert first_something2(Dict(:a => 1, :c => 3)) == 1
+
 # Alternatively, combined with [`@something`](@ref):
 
 function first_something3(dict)
