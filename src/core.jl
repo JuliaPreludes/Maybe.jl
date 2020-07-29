@@ -33,4 +33,6 @@ end
 
 @inline Maybe.getproperty(x, name) =
     hasproperty(x, name) ? Some(getproperty(x, name)) : nothing
+@inline Maybe.getproperty(x::Module, name::Symbol) =
+    isdefined(x, name) ? Some(getfield(x, name)) : nothing
 @inline Maybe.getproperty(x::NamedTuple, name::Symbol) = Maybe.get(x, name)

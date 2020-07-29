@@ -25,6 +25,16 @@ unsafe_getindex0(xs) = @inbounds Maybe.getindex(xs, 0)
     end
 end
 
+module Sample
+const someproperty = 1
+end  # module Sample
+
+@testset "getproperty" begin
+    @test Maybe.getproperty(Sample, :someproperty) === Some(1)
+    @test Maybe.getproperty(Sample, :length) === Some(length)
+    @test Maybe.getproperty(Sample, :__init__) === nothing
+end
+
 @testset "length" begin
     @test Maybe.length(1:2) === Some(2)
     @test Maybe.length(x for x in 1:0 if false) === nothing
