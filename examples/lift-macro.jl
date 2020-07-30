@@ -300,6 +300,49 @@ end
 @assert something_positive_add3([-1, 0, 1], [0, 1, 3]) === Some(4)
 @assert something_positive_add3([-1, 0, 1], [0, 1, 2]) === nothing
 
+# ## Combining `@?` and `@something`
+
+# As explained, using `@?` in `@something` is well supported.
+# However, further nesting is not supported (as the same expression
+# would be processed by `@?` twice).  Assigning to an intermediate
+# variable is a safe way to use the result of `@something` in `@?`.
+# The pattern `@something(..., return)` is useful inside functions for
+# this.
+
+function extract_a_and_bc(x)
+    c = @something {
+        @? x[:b][:c];
+        @? x[:b][:ccc];
+        return;  # filter out if none of them exist
+    }
+    return @? (a = x[:a], c = c)
+end
+
+@assert extract_a_and_bc(Dict(:a => 1, :b => Dict(:c => 2))) === Some((a = 1, c = 2))
+@assert extract_a_and_bc(Dict(:a => 1)) === nothing
+@assert extract_a_and_bc(Dict(:a => 1, :b => Dict())) === nothing
+@assert extract_a_and_bc(Dict(:b => Dict(:c => 2))) === nothing
+@assert extract_a_and_bc(Dict(:a => 10, :b => Dict(:ccc => 20))) === Some((a = 10, c = 20))
+
+# In a rare situation, it may be useful to use `$(...)` to nest
+# `@something`-of-`@?`s in `@?`:
+
+function a_plus_b_plus_c_or_d_times_2(x)
+    @? begin
+        p = x[:a] + x[:b]
+        q = $(@something {
+            @? p + x[:c];
+            @? p + x[:d];
+            Some(nothing);  # `return` works as well
+        })
+        return 2q
+    end
+end
+
+@assert a_plus_b_plus_c_or_d_times_2(Dict(:a => 1, :b => 2, :c => 3)) == Some(12)
+@assert a_plus_b_plus_c_or_d_times_2(Dict(:a => 1, :b => 2, :d => 3)) == Some(12)
+@assert a_plus_b_plus_c_or_d_times_2(Dict(:a => 1, :b => 2)) === nothing
+
 # ## Functions
 
 # When `@?` sees functions (including closures and `do` blocks ), it
