@@ -9,6 +9,8 @@ function get end
 function getindex end
 function getproperty end
 
+function _break end
+
 baremodule Extras
 export getnested, ifnothing, maybe, defaultto
 function maybe end

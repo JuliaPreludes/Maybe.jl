@@ -2,6 +2,16 @@
     esc(maybe_macro(__module__, __source__, macroexpand(__module__, ex)))
 end
 
+@eval macro $(Symbol("?"))(debug, ex)
+    if debug != QuoteNode(:debug)
+        throw(ArgumentError(
+            "two-argument form `@? :debug ex` only support" *
+            " the flag `:debug`; got:\n$debug",
+        ))
+    end
+    esc(maybe_macro(__module__, __source__, macroexpand(__module__, ex), true))
+end
+
 function isfunction(ex::Expr)
     (isexpr(ex, :function) || isexpr(ex, :->)) && return true
     if isexpr(ex, :(=), 2)
@@ -38,7 +48,11 @@ ensure_maybe(x) = Some(x)
 isdotop(_) = false
 isdotop(x::Symbol) = Base.isoperator(x) && startswith(String(x), ".")
 
-function maybe_macro(__module__, __source__, expr0)
+function Maybe._break()
+    return nothing  # In debugger, use `up` to examine the state just before shortcircuit
+end
+
+function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
     @gensym END
     callmacro(f, args...) = Expr(:macrocall, f, __source__, args...)
     block(args...) = Expr(:block, __source__, args...)
@@ -69,7 +83,7 @@ function maybe_macro(__module__, __source__, expr0)
                 end
             else
                 # handling: f(args...)
-                return shortcircuit(liftcall(ex))
+                return shortcircuit(liftcall(ex), ex)
             end
         elseif isexpr(ex, :tuple)
             return liftcall(ex)
@@ -88,7 +102,7 @@ function maybe_macro(__module__, __source__, expr0)
                 excall = Expr(:call, excall.args[1].args[1], excall.args[2:end]...)
                 return ensure_maybe_expr(Expr(:do, excall, lift(ex.args[2])))
             else
-                return shortcircuit(Expr(:do, excall, lift(ex.args[2])))
+                return shortcircuit(Expr(:do, excall, lift(ex.args[2])), ex)
             end
         elseif isexpr(ex, :for, 2)
             destructs = []
@@ -111,13 +125,30 @@ function maybe_macro(__module__, __source__, expr0)
         end
         return Expr(ex.head, map(lift, ex.args)...)
     end
-    function shortcircuit(x)
+    function shortcircuit(x, original = x)
         @gensym ans
-        quote
-            local $ans = $(block(x))
-            $ans === nothing && $(callmacro(var"@goto", END))
-            $something($ans)
+        bailout = callmacro(var"@goto", END)
+        if debug
+            logargs = Any[:(evaluating = $(QuoteNode(original)))]
+            if isdefined(Base, Symbol("@locals"))
+                push!(logargs, :(locals = $(callmacro(getfield(Base, Symbol("@locals"))))))
+            end
+            bailout = Expr(
+                :block,
+                callmacro(
+                    getfield(Base, Symbol("@debug")),
+                    "Got `nothing`. Short-circuiting...",
+                    logargs...,
+                ),
+                :($Maybe._break()),
+                bailout,
+            )
         end
+        block(
+            :(local $ans = $(block(x))),
+            :($ans === nothing && $bailout),
+            :($something($ans)),
+        )
     end
     function liftconsume(x)
         if x === :nothing
