@@ -54,9 +54,18 @@ end
 
 function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
     @gensym END
-    callmacro(f, args...) = Expr(:macrocall, f, __source__, args...)
-    block(args...) = Expr(:block, __source__, args...)
+    lastline = Ref(__source__)
+    callmacro(f, args...) = Expr(:macrocall, f, lastline[], args...)
+    block(args...) = Expr(:block, lastline[], args...)
     lift(x) = x
+    function lift(x::LineNumberNode)
+        # Track the "best" line number to use.  This relies on that
+        # the AST walking visits the node in the "line number order".
+        # It could be a bit fragile but it looks like this is good
+        # enough?
+        lastline[] = x
+        x
+    end
     function lift(ex::Expr)
         if (
             isexpr(ex, :meta) ||
@@ -67,7 +76,7 @@ function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
             return ex
         elseif isfunction(ex)
             dict = splitdef(ex)
-            dict[:body] = maybe_macro(__module__, __source__, dict[:body])
+            dict[:body] = maybe_macro(__module__, lastline[], dict[:body])
             return combinedef(dict)
         elseif isexpr(ex, :call)
             f = ex.args[1]
@@ -113,7 +122,7 @@ function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
             end
             loopbody = Expr(
                 :block,
-                something(first_line_number_node(ex.args[2]), __source__),
+                something(first_line_number_node(ex.args[2]), lastline[]),
                 destructs...,
                 ex.args[2],
             )
