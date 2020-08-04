@@ -53,9 +53,9 @@ if !isdefined(Base, Symbol("@var_str"))
 end
 
 include("utils.jl")
+include("lift.jl")
 include("something.jl")
 include("core.jl")
-include("lift.jl")
 include("extras.jl")
 finalize_implementations()
 end
