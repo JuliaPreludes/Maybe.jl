@@ -31,3 +31,6 @@ Maybe.Extras.definite(x) = x
 Maybe.Extras.definite(x::Some) = Maybe.Extras.definite(something(x))
 
 Maybe.Extras.asmissing(x) = something(Maybe.Extras.definite(x), missing)
+
+Maybe.Extras.frommissing(::Missing) = nothing
+Maybe.Extras.frommissing(x) = Some(x)
