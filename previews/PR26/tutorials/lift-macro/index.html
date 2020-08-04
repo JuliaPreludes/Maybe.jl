@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>How to use @? · Maybe</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Maybe</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Maybe.jl</a></li><li class="is-active"><a class="tocitem" href>How to use <code>@?</code></a><ul class="internal"><li><a class="tocitem" href="#Introduction"><span>Introduction</span></a></li><li><a class="tocitem" href="#How-it-works"><span>How it works</span></a></li><li><a class="tocitem" href="#More-examples"><span>More examples</span></a></li><li><a class="tocitem" href="#tutorials-lift-macro-indexing"><span>Indexing</span></a></li><li><a class="tocitem" href="#@?-return"><span><code>@? return</code></span></a></li><li><a class="tocitem" href="#Combining-@?-and-@something"><span>Combining <code>@?</code> and <code>@something</code></span></a></li><li><a class="tocitem" href="#Functions"><span>Functions</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>How to use <code>@?</code></a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>How to use <code>@?</code></a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/tkf/Maybe.jl/blob/master/examples/lift-macro.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="tutorial"><a class="docs-heading-anchor" href="#tutorial">How to use <code>@?</code></a><a id="tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#tutorial" title="Permalink"></a></h1><pre><code class="language-julia">using Maybe</code></pre><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>Julia <code>Base</code> provides functions <code>findfirst</code> and <code>findlast</code> that returns an integer when an element is found:</p><pre><code class="language-julia">findfirst(x -&gt; gcd(x, 42) == 21, 50:200)</code></pre><pre class="documenter-example-output">14</pre><p>and <code>nothing</code> if not:</p><pre><code class="language-julia">@assert findlast(x -&gt; gcd(x, 42) == 23, 50:200) === nothing</code></pre><p>It is rather tedious to combine such functions:</p><pre><code class="language-julia">function find_some_random_range_1(data)
+    f(x) = gcd(x, 42) == 21
+    i = findfirst(f, data)
+    i === nothing &amp;&amp; return nothing
+    j = findlast(f, data)
+    j === nothing &amp;&amp; return nothing
+    return data[i:j]
+end
+
+@assert find_some_random_range_1(50:200) === 63:189
+@assert find_some_random_range_1(30:50) === nothing</code></pre><p>To solve this issue, Maybe.jl provides a macro <a href="../../#Maybe.@?"><code>@?</code></a> that lets you write</p><pre><code class="language-julia">function find_some_random_range_2(data)
+    f(x) = gcd(x, 42) == 21
+    @? begin
+        i = findfirst(f, data)
+        j = findlast(f, data)
+        return data[i:j]
+    end
+end
+
+@assert find_some_random_range_2(50:200) === Some(63:189)
+@assert find_some_random_range_2(30:50) === nothing</code></pre><p>Similarly, <code>@?</code> is also useful for indexing into arrays, dictionaries, etc. that may fail.  For example</p><pre><code class="language-julia">dict = Dict(:a =&gt; 1, :b =&gt; nothing, :c =&gt; 2)
+@assert (@? dict[:a] + dict[:c]) == Some(3)
+@assert (@? dict[:a] + dict[:non_existing_key]) === nothing</code></pre><p>This is explained in more details in <a href="#tutorials-lift-macro-indexing">Indexing section</a> below.</p><h2 id="How-it-works"><a class="docs-heading-anchor" href="#How-it-works">How it works</a><a id="How-it-works-1"></a><a class="docs-heading-anchor-permalink" href="#How-it-works" title="Permalink"></a></h2><p>The above example <code>find_some_random_range_2</code> is roughly equivalent to</p><pre><code class="language-julia">function find_some_random_range_3(data)
+    f(x) = gcd(x, 42) == 21
+    mi = findfirst(f, data)
+    mi === nothing &amp;&amp; return nothing  # (1)
+    i = something(mi)                 # (2)
+    mj = findlast(f, data)
+    mj === nothing &amp;&amp; return nothing  # (1)
+    j = something(mj)                 # (2)
+    md = Maybe.getindex(data, i:j)    # (3)
+    md === nothing &amp;&amp; return nothing  # (1)
+    d = something(md)                 # (2′)
+    return Some(d)                    # (4)
+end
+
+@assert find_some_random_range_3(50:200) === Some(63:189)
+@assert find_some_random_range_3(30:50) === nothing</code></pre><p>Observe that:</p><p>(1) If a function returns <code>nothing</code>, the whole evaluation short-circuits and evaluates to <code>nothing</code>.  (Side notes: short-circuiting is not actually implemented using <code>return</code> in <code>@?</code> so that it can be used outside functions.)</p><p>(2) The returned value is always unwrapped by <code>something</code>.  Thus, it works with &quot;ordinary&quot; functions like <code>+</code> as well as a function returning <code>Some</code> (like <code>Maybe.getindex</code>); see (2′).</p><p>(3) Indexing dispatches to <a href="../../#Maybe.getindex"><code>Maybe.getindex</code></a>.</p><p>(4) Finally, the returned result is always ensured to be wrapped by <code>Some</code>.</p><h2 id="More-examples"><a class="docs-heading-anchor" href="#More-examples">More examples</a><a id="More-examples-1"></a><a class="docs-heading-anchor-permalink" href="#More-examples" title="Permalink"></a></h2><p>Consider a function that returns <code>nothing</code> on &quot;failure&quot;:</p><pre><code class="language-julia">maybe_positive(x) = x &gt; 0 ? x : nothing;</code></pre><p>When a function call in <code>@?</code> is evaluated to a non-<code>nothing</code>, the returned value is wrapped in <code>Some</code>:</p><pre><code class="language-julia">@? maybe_positive(1)</code></pre><pre class="documenter-example-output">Some(1)</pre><p>When <code>Some</code> appears in the argument positions, they are automatically un-wrapped:</p><pre><code class="language-julia">@? maybe_positive(1) + 1</code></pre><pre class="documenter-example-output">Some(2)</pre><p><code>@?</code> is evaluated to <code>nothing</code> when the first sub-expression is evaluated to <code>nothing</code>:</p><pre><code class="language-julia">r = @? maybe_positive(-1) + 1
+@assert r === nothing</code></pre><p>Literal <code>nothing</code> is transformed to <code>Some(nothing)</code>:</p><pre><code class="language-julia">@? nothing</code></pre><pre class="documenter-example-output">Some(nothing)</pre><p><code>@?</code> terminates the call chain immediately when it sees <code>nothing</code> as the return value.</p><pre><code class="language-julia">ARG_HISTORY = []
+demo(label, x) = (push!(ARG_HISTORY, label =&gt; x); x)
+
+r = @? demo(2, identity(demo(1, nothing)))
+@assert r === nothing</code></pre><p>Note that <code>demo(2, ...)</code> is not called:</p><pre><code class="language-julia">ARG_HISTORY</code></pre><pre class="documenter-example-output">1-element Array{Any,1}:
+ 1 =&gt; nothing</pre><p>This can be avoided by prefixing the function name by <code>$</code>:</p><pre><code class="language-julia">empty!(ARG_HISTORY)
+
+@? $demo(2, $identity($demo(1, nothing)))</code></pre><pre class="documenter-example-output">Some(nothing)</pre><p>Now <code>demo(2, ...)</code> is called:</p><pre><code class="language-julia">ARG_HISTORY</code></pre><pre class="documenter-example-output">2-element Array{Any,1}:
+ 1 =&gt; nothing
+ 2 =&gt; nothing</pre><p>This is because <code>@?</code> automatically unwraps <code>Some</code> in the call chain. It means that <code>Some</code> acts like the identity function inside <code>@?</code>:</p><pre><code class="language-julia">@? Some(Some(Some(nothing)))</code></pre><pre class="documenter-example-output">Some(nothing)</pre><p>On the other hand, <code>identity</code> acts like &quot;unwrap&quot; function:</p><pre><code class="language-julia">r = @? identity(identity(Some(nothing)))
+@assert r === nothing</code></pre><p>Finally, with <code>$Some</code>:</p><pre><code class="language-julia">@? $Some($Some($Some(nothing)))</code></pre><pre class="documenter-example-output">Some(Some(Some(Some(nothing))))</pre><p><code>$(expression)</code> can be used to evaluate the whole <code>expression</code> in the normal context</p><pre><code class="language-julia">@? $(Some(Some(Some(nothing))))</code></pre><pre class="documenter-example-output">Some(Some(Some(Some(nothing))))</pre><h2 id="tutorials-lift-macro-indexing"><a class="docs-heading-anchor" href="#tutorials-lift-macro-indexing">Indexing</a><a id="tutorials-lift-macro-indexing-1"></a><a class="docs-heading-anchor-permalink" href="#tutorials-lift-macro-indexing" title="Permalink"></a></h2><p>Index access is also lifted.  Consider a dictionary</p><pre><code class="language-julia">dict = Dict(:a =&gt; Dict(:b =&gt; nothing, :c =&gt; 2));</code></pre><p>Any value stored in the container (here, a <code>Dict</code>) is returned as a <code>Some</code>:</p><pre><code class="language-julia">@? dict[:a][:c]</code></pre><pre class="documenter-example-output">Some(2)</pre><p>Thus, <code>nothing</code> stored in the container is returned as <code>Some(nothing)</code></p><pre><code class="language-julia">@? dict[:a][:b]</code></pre><pre class="documenter-example-output">Some(nothing)</pre><p>On the other hand, accessing non-existing index returns <code>nothing</code>:</p><pre><code class="language-julia">@assert (@? dict[:a][:d]) === nothing
+@assert (@? dict[:d]) === nothing</code></pre><p>Index access can be &quot;fused&quot; with other function calls:</p><pre><code class="language-julia">@assert (@? dict[:a][:c] + 1) === Some(3)
+@assert (@? dict[:a][:d] + 1) === nothing</code></pre><p>Existing <code>nothing</code> value can be normalized using <code>something</code> as usual inside <code>@?</code>.  This is because <code>@?</code> automatically unwraps <code>Some</code> once.</p><pre><code class="language-julia">@assert (@? something(dict[:a][:b], 0) + 1) === Some(1)
+@assert (@? something(dict[:a][:c], 0) + 1) === Some(3)
+@assert (@? something(dict[:a][:d], 0) + 1) === nothing</code></pre><p>Since <code>identity</code> acts like unwrapping operation inside <code>@?</code>, it can be used for normalizing non-existing key and existing <code>nothing</code> to the same value:</p><pre><code class="language-julia">@assert something((@? identity(dict[:a][:b])), 0) + 1 === 1
+@assert something((@? identity(dict[:a][:c])), 0) + 1 === 3
+@assert something((@? identity(dict[:a][:d])), 0) + 1 === 1</code></pre><p>Indexing also works with arrays</p><pre><code class="language-julia">vectors = [[1, 2], [3, 4, 5]]
+
+@assert (@? vectors[1][2]) === Some(2)
+@assert (@? vectors[3][4]) === nothing
+@assert (@? vectors[1][3]) === nothing</code></pre><h2 id="@?-return"><a class="docs-heading-anchor" href="#@?-return"><code>@? return</code></a><a id="@?-return-1"></a><a class="docs-heading-anchor-permalink" href="#@?-return" title="Permalink"></a></h2><p><code>return</code> in <code>@?</code> is a powerful pattern for returning a non-<code>nothing</code> value.</p><pre><code class="language-julia">function first_something(dict)
+    @? return dict[:a]
+    @? return dict[:b]
+    @? return dict[:c]
+    return nothing
+end
+
+@assert first_something(Dict()) == nothing
+@assert first_something(Dict(:c =&gt; 3)) == Some(3)
+@assert first_something(Dict(:a =&gt; 1, :c =&gt; 3)) == Some(1)</code></pre><p>Alternatively, combined with <a href="../../#Maybe.@something"><code>@something</code></a>:</p><pre><code class="language-julia">function first_something3(dict)
+    return @something {
+        @? dict[:a];
+        @? dict[:b];
+        @? dict[:c];
+        0;  # fallback
+    }
+end
+
+@assert first_something3(Dict()) === 0
+@assert first_something3(Dict(:c =&gt; 3)) === 3
+@assert first_something3(Dict(:a =&gt; 1, :c =&gt; 3)) === 1</code></pre><p>Note that <code>@?</code> can have multiple statements.  Any of the sub-expression evaluating to <code>nothing</code> short-circuits to the end of <code>@?</code> block.</p><pre><code class="language-julia">function a_plus_b(dict)
+    @? begin
+        a = dict[:a]
+        b = dict[:b]
+        return a + b
+    end
+    return 0
+end
+
+@assert a_plus_b(Dict(:a =&gt; 1)) == 0
+@assert a_plus_b(Dict(:a =&gt; 1, :b =&gt; 2)) == Some(3)</code></pre><p>Note that <code>@?</code> works with other control flows like <code>break</code>:</p><pre><code class="language-julia">function something_positive_add3(xs, idx)
+    found = nothing
+    for i in idx
+        @? if xs[i] &gt; 0  # out-of-bound access is ignored
+            found = i
+            break
+        end
+    end
+    return @? xs[found] + 3
+end
+
+@assert something_positive_add3([-1, 0, 1], [0, 1, 3]) === Some(4)
+@assert something_positive_add3([-1, 0, 1], [0, 1, 2]) === nothing</code></pre><h2 id="Combining-@?-and-@something"><a class="docs-heading-anchor" href="#Combining-@?-and-@something">Combining <code>@?</code> and <code>@something</code></a><a id="Combining-@?-and-@something-1"></a><a class="docs-heading-anchor-permalink" href="#Combining-@?-and-@something" title="Permalink"></a></h2><p>As explained, using <code>@?</code> in <code>@something</code> is well supported. However, further nesting is not supported (as the same expression would be processed by <code>@?</code> twice).  Assigning to an intermediate variable is a safe way to use the result of <code>@something</code> in <code>@?</code>. The pattern <code>@something(..., return)</code> is useful inside functions for this.</p><pre><code class="language-julia">function extract_a_and_bc(x)
+    c = @something {
+        @? x[:b][:c];
+        @? x[:b][:ccc];
+        return;  # filter out if none of them exist
+    }
+    return @? (a = x[:a], c = c)
+end
+
+@assert extract_a_and_bc(Dict(:a =&gt; 1, :b =&gt; Dict(:c =&gt; 2))) === Some((a = 1, c = 2))
+@assert extract_a_and_bc(Dict(:a =&gt; 1)) === nothing
+@assert extract_a_and_bc(Dict(:a =&gt; 1, :b =&gt; Dict())) === nothing
+@assert extract_a_and_bc(Dict(:b =&gt; Dict(:c =&gt; 2))) === nothing
+@assert extract_a_and_bc(Dict(:a =&gt; 10, :b =&gt; Dict(:ccc =&gt; 20))) === Some((a = 10, c = 20))</code></pre><p>In a rare situation, it may be useful to use <code>$(...)</code> to nest <code>@something</code>-of-<code>@?</code>s in <code>@?</code>:</p><pre><code class="language-julia">function a_plus_b_plus_c_or_d_times_2(x)
+    @? begin
+        p = x[:a] + x[:b]
+        q = $(@something {
+            @? p + x[:c];
+            @? p + x[:d];
+            Some(nothing);  # `return` works as well
+        })
+        return 2q
+    end
+end
+
+@assert a_plus_b_plus_c_or_d_times_2(Dict(:a =&gt; 1, :b =&gt; 2, :c =&gt; 3)) == Some(12)
+@assert a_plus_b_plus_c_or_d_times_2(Dict(:a =&gt; 1, :b =&gt; 2, :d =&gt; 3)) == Some(12)
+@assert a_plus_b_plus_c_or_d_times_2(Dict(:a =&gt; 1, :b =&gt; 2)) === nothing</code></pre><h2 id="Functions"><a class="docs-heading-anchor" href="#Functions">Functions</a><a id="Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Functions" title="Permalink"></a></h2><p>When <code>@?</code> sees functions (including closures and <code>do</code> blocks ), it converts them recursively to operate on <code>Union{Some{T},Nothing}</code>.</p><pre><code class="language-julia">@? get_a_plus_b(dict) =
+    get(dict, :a_plus_b) do
+        dict[:a] + dict[:b]
+    end
+
+@assert get_a_plus_b(Dict(:a_plus_b =&gt; 1)) == Some(1)
+@assert get_a_plus_b(Dict(:a =&gt; 1, :b =&gt; 2)) == Some(3)
+@assert get_a_plus_b(Dict(:b =&gt; 1)) == nothing</code></pre><p>Thus, functions created with <code>@?</code> work nicely in <code>@?</code>:</p><pre><code class="language-julia">@? begin
+    x = get_a_plus_b(Dict(:a_plus_b =&gt; 1))
+    y = get_a_plus_b(Dict(:a =&gt; 1, :b =&gt; 2))
+    x + y
+end</code></pre><pre class="documenter-example-output">Some(4)</pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Maybe.jl</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 4 August 2020 05:37">Tuesday 4 August 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
