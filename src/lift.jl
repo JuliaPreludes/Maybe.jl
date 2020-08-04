@@ -56,10 +56,21 @@ function maybe_macro(__module__, __source__, expr0)
             dict[:body] = maybe_macro(__module__, __source__, dict[:body])
             return combinedef(dict)
         elseif isexpr(ex, :call)
-            isdotop(ex.args[1]) && throw(ArgumentError("dot-call is not supported yet"))
+            f = ex.args[1]
+            isdotop(f) && throw(ArgumentError("dot-call is not supported yet"))
             excall = liftcall(ex)
-            return isexpr(ex.args[1], :$, 1) ? ensure_maybe_expr(excall) :
-                   shortcircuit(excall)
+            if isexpr(f, :$, 1)
+                if f.args[1] === :return && length(ex.args) == 2
+                    # handling: $return(x)
+                    return Expr(:return, lift(ex.args[2]))  # no `Some`
+                else
+                    # handling: $f(args...)
+                    return ensure_maybe_expr(liftcall(ex))
+                end
+            else
+                # handling: f(args...)
+                return shortcircuit(liftcall(ex))
+            end
         elseif isexpr(ex, :tuple)
             return liftcall(ex)
         elseif isexpr(ex, :return, 1)

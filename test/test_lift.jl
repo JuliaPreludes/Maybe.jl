@@ -50,6 +50,21 @@ end
 # Since `fᵢ` and `fᵢ₊₁` (`i` is odd) above should work identically,
 # `return nothing` should be lifted to `return Some(nothing)`.
 
+@testset "\$return(x)" begin
+    f1() = @? $return(1)
+    @? function f2()
+        $return(1)
+    end
+    f3 = @? function ()
+        $return(1)
+    end
+    @? f4() = $return(1)
+    f5 = @? () -> $return(1)
+    @testset for f in map(something, [f1, f2, f3, f4, f5])
+        @test f() === 1
+    end
+end
+
 @testset "keyword arguments" begin
     f(a; b = 1, c = 2) = (a, b, c)
     f() = nothing
