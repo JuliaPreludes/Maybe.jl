@@ -397,3 +397,71 @@ end === Some(4)
         end
     end == nothing
 end
+
+# ## Debugging
+
+# You can include debugging information to `@? expr` with `:debug`
+# flag as in `@? :debug expr`.  This inserts `@debug` logging
+# statements for every possible short-circuit points.  When using the
+# standard Julia logger, this information can be printed by setting
+# the environment variable:
+#
+# ```julia
+# ENV["JULIA_DEBUG"] = "all"  # or narrower scope like "MyPackage"
+# ```
+#
+# This logging statement prints the expression that is evaluated to
+# `nothing` and all the local variables using `Base.@locals`.
+
+#! format: off
+using Logging                                                        # hide
+OUTPUT = let stdout = IOBuffer()                                       #src
+withenv("JULIA_DEBUG" => "all") do                                   # hide
+with_logger(SimpleLogger(stdout, Logging.Debug)) do                  # hide
+dict = Dict(:a => Dict(:b => nothing, :c => 2))
+@? :debug dict[:a][:d]
+end                                                                  # hide
+end                                                                  # hide
+    String(take!(stdout))                                              #src
+end                                                                    #src
+#! format: on
+
+@testset begin
+    @test occursin("evaluating = (Maybe.getindex)(dict[:a], :d)", OUTPUT)
+end
+
+# `@? :debug expr` also inserts a call to a no-op function
+# `Maybe._break`.  When using Debugger.jl, the state just before exit
+# can be examined by adding it to the breakpoint with `bp add
+# Maybe._break`.
+#
+# ```julia
+# julia> using Maybe, Debugger
+#
+# julia> dict = Dict(:a => Dict(:b => nothing, :c => 2));
+#
+# julia> f(dict) = @? :debug dict[:a][:d];
+#
+# julia> @enter f(dict)
+# In f(dict) at REPL[4]:1
+# >1  f(dict) = @? :debug dict[:a][:d]
+#
+# About to run: return Maybe.Implementations.nothing
+# 1|debug> bp add Maybe._break
+# [ Info: added breakpoint for function _break
+# 1] _break
+#
+# 1|debug> c
+# Hit breakpoint:
+# failed to lookup source code, showing lowered code:
+# In _break() at /home/takafumi/.julia/dev/Maybe/src/lift.jl:51
+# >1  1 ─     return Maybe.Implementations.nothing
+#
+# About to run: $(Expr(:meta, :noinline))
+# 1|debug> up
+# In f(dict) at REPL[4]:1
+# >1  f(dict) = @? :debug dict[:a][:d]
+#
+# About to run: (Maybe._break)()
+# 2|debug>
+# ```
