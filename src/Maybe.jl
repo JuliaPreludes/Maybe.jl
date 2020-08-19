@@ -5,6 +5,8 @@ export @something
 
 function length end
 function eltype end
+function first end
+function last end
 function get end
 function getindex end
 function getproperty end

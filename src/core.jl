@@ -6,6 +6,9 @@ Maybe.length(itr) =
 Maybe.eltype(itr) =
     Base.IteratorEltype(itr) isa Base.HasEltype ? Some(eltype(itr)) : nothing
 
+@inline Maybe.first(xs) = @something(iterate(xs), return)[1]
+@inline Maybe.last(xs) = Maybe.get(xs, lastindex(xs))
+
 @inline function Maybe.get(x::Union{AbstractDict,NamedTuple}, k)
     v = get(x, k, NoValue())
     v isa NoValue && return nothing
