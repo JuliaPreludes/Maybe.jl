@@ -1,5 +1,11 @@
 # This file is machine-generated - editing it directly is not advised
 
+[[Aqua]]
+deps = ["Pkg", "Test"]
+git-tree-sha1 = "2e62f20d7b710034082c82bf03129d208fc479ec"
+uuid = "4c88cf16-eb10-579e-8560-4a9242c79595"
+version = "0.4.8"
+
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
