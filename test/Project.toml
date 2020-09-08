@@ -1,4 +1,5 @@
 [deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LiterateTest = "d77d25b0-90d3-4a16-b10a-412a9d48f625"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
