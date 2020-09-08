@@ -6,3 +6,8 @@ LiterateTest = "d77d25b0-90d3-4a16-b10a-412a9d48f625"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Maybe = "334f122f-1118-46cc-837f-bff747ee6f78"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+Aqua = "0.4.7"
+Documenter = "0.25"
+LiterateTest = "0.1.2"
