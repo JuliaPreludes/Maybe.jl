@@ -31,11 +31,21 @@ on_assignments(f, ex::Expr) =
         error("unsupported expression: $ex")
     end
 
-first_line_number_node(_) = nothing
-first_line_number_node(lnn::LineNumberNode) = lnn
-function first_line_number_node(ex::Expr)
+is_advancing(old) = old -> is_advancing(old, new)
+is_advancing(old, new) = old.file === new.file && old.line < new.line
+
+function update_if_advancing!(lastline::Ref{LineNumberNode}, lnn::LineNumberNode)
+    if is_advancing(lastline[], lnn)
+        lastline[] = lnn
+    end
+    return lastline
+end
+
+first_line_number_node(_, _) = nothing
+first_line_number_node(f, lnn::LineNumberNode) = f(lnn) ? lnn : nothing
+function first_line_number_node(f, ex::Expr)
     for x in ex.args
-        lnn = first_line_number_node(x)
+        lnn = first_line_number_node(f, x)
         lnn == nothing || return lnn
     end
     return nothing
@@ -59,11 +69,8 @@ function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
     block(args...) = Expr(:block, lastline[], args...)
     lift(x) = x
     function lift(x::LineNumberNode)
-        # Track the "best" line number to use.  This relies on that
-        # the AST walking visits the node in the "line number order".
-        # It could be a bit fragile but it looks like this is good
-        # enough?
-        lastline[] = x
+        # Track the "best" line number to use.
+        update_if_advancing!(lastline, x)
         x
     end
     function lift(ex::Expr)
@@ -122,7 +129,10 @@ function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
             end
             loopbody = Expr(
                 :block,
-                something(first_line_number_node(ex.args[2]), lastline[]),
+                something(
+                    first_line_number_node(is_advancing(lastline[]), ex.args[2]),
+                    lastline[],
+                ),
                 destructs...,
                 ex.args[2],
             )
