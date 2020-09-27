@@ -17,6 +17,8 @@ end
 
 @inline Maybe.get(x::Tuple, k::Integer) = 1 <= k <= length(x) ? Some(x[k]) : nothing
 
+@inline Maybe.get(x::AbstractArray, i) = Maybe.getindex(x, i)
+
 @propagate_inbounds Maybe.getindex(xs, args...; kwargs...) =
     isempty(kwargs) ? posargs_getindex(xs, args...) : getindex(xs, args...; kwargs...)
 
