@@ -8,6 +8,7 @@ macro something(args...)
 end
 
 function something_expr(__module__, __source__, @nospecialize(args))
+    args = collect(Any, args)
     lnns = LineNumberNode[]
     ln = __source__
     for x in args
@@ -16,7 +17,7 @@ function something_expr(__module__, __source__, @nospecialize(args))
     end
 
     foldr(
-        zip(collect(Any, args), lnns);
+        collect(zip(args, lnns));  # `collect` for Julia 1.0
         init = :(throw(ArgumentError("all evaluated as `nothing`"))),
     ) do (x, ln), ex
         block = esc(Expr(:block, ln, x))
