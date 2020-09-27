@@ -25,6 +25,18 @@ unsafe_getindex0(xs) = @inbounds Maybe.getindex(xs, 0)
     end
 end
 
+@testset "first" begin
+    @test Maybe.first([]) === nothing
+    @test Maybe.first([1]) === Some(1)
+    @test Maybe.first(x for x in 1:10 if x < 0) === nothing
+    @test Maybe.first(x for x in 1:10 if x > 0) === Some(1)
+end
+
+@testset "first" begin
+    @test Maybe.last([]) === nothing
+    @test Maybe.last([1]) === Some(1)
+end
+
 module Sample
 const someproperty = 1
 end  # module Sample
