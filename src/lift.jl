@@ -69,10 +69,7 @@ function maybe_macro(__module__, __source__, expr0, debug::Bool = false)
     block(args...) = Expr(:block, lastline[], args...)
     lift(x) = x
     function lift(x::LineNumberNode)
-        # Track the "best" line number to use.  This relies on that
-        # the AST walking visits the node in the "line number order".
-        # It could be a bit fragile but it looks like this is good
-        # enough?
+        # Track the "best" line number to use.
         update_if_advancing!(lastline, x)
         x
     end
