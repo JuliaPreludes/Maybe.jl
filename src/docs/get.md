@@ -15,4 +15,9 @@ julia> Maybe.get(Dict(), :a)
 
 julia> Maybe.get(Dict(:a => 1), :a)
 Some(1)
+
+julia> Maybe.get([1], 2)
+
+julia> Maybe.get([1], 1)
+Some(1)
 ```
