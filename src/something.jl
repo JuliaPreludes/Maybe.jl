@@ -8,20 +8,26 @@ macro something(args...)
 end
 
 function something_expr(__module__, __source__, @nospecialize(args))
+    args = collect(Any, args)
+    lnns = LineNumberNode[]
+    ln = __source__
+    for x in args
+        ln = something(first_line_number_node(is_advancing(ln), x), ln)
+        push!(lnns, ln)
+    end
+
     foldr(
-        collect(Any, args);
+        collect(zip(args, lnns));  # `collect` for Julia 1.0
         init = :(throw(ArgumentError("all evaluated as `nothing`"))),
-    ) do x, ex
-        block = esc(Expr(:block, __source__, x))
+    ) do (x, ln), ex
+        block = esc(Expr(:block, ln, x))
         @gensym v
-        quote
-            local $v = $block
-            if $v !== nothing
-                something($v)
-            else
-                $ex
-            end
-        end
+        return Expr(
+            :block,
+            ln,
+            :(local $v = $block),
+            :($v !== nothing ? something($v) : $ex),
+        )
     end
 end
 

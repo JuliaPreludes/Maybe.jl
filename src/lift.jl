@@ -31,7 +31,7 @@ on_assignments(f, ex::Expr) =
         error("unsupported expression: $ex")
     end
 
-is_advancing(old) = old -> is_advancing(old, new)
+is_advancing(old) = new -> is_advancing(old, new)
 is_advancing(old, new) = old.file === new.file && old.line < new.line
 
 function update_if_advancing!(lastline::Ref{LineNumberNode}, lnn::LineNumberNode)
