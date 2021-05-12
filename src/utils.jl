@@ -57,7 +57,6 @@ end
 function finalize_package()
     @eval Maybe begin
         const T = Implementations.MaybeType
-        const $(Symbol("@something")) = Implementations.$(Symbol("@something"))
         const $(Symbol("@?")) = Implementations.$(Symbol("@?"))
         export $(Symbol("@?"))
     end

@@ -8,8 +8,8 @@ MaybeFunction(::Type{T}) where {T} = MaybeFunction{Type{T}}(T)
 
 @inline function maybecall(f, args...; kwargs...)
     any(isnothing, args) && return nothing
-    any(isnothing, Tuple(kwargs.data)) && return nothing
-    return ensure_maybe(f(_somethings(args)...; _somethings(kwargs.data)...))
+    any(isnothing, Tuple(values(kwargs))) && return nothing
+    return ensure_maybe(f(_somethings(args)...; _somethings(values(kwargs))...))
 end
 
 @inline _somethings(xs::Tuple) = map(something, xs)

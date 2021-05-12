@@ -3,7 +3,7 @@ module TestMaybeFunction
 using Maybe.Extras
 using Test
 
-retargs(args...; kwargs...) = (args, kwargs.data)
+retargs(args...; kwargs...) = (args, values(kwargs))
 
 @testset begin
     @test maybe(retargs)(nothing) === nothing

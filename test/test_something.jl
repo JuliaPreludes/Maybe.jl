@@ -1,6 +1,7 @@
 module TestSomething
 
 using Maybe
+using Maybe: @something
 using Maybe.Implementations: statements_in_braces
 using Test
 

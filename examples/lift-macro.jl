@@ -1,6 +1,7 @@
 # # [How to use `@?`](@id tutorial)
 
 using Maybe
+using Maybe: @something
 
 using LiterateTest                                                     #src
 using Test                                                             #src
