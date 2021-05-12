@@ -3,6 +3,8 @@ baremodule Maybe
 export @something
 # export @?
 
+macro something end
+
 function length end
 function eltype end
 function first end
@@ -37,6 +39,8 @@ using ..Maybe: Maybe
 using Base: @propagate_inbounds
 using Base.Meta: isexpr
 using ExprTools: combinedef, splitdef
+
+import ..Maybe: @something
 
 if !@isdefined hasproperty
     using Compat: hasproperty

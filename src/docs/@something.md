@@ -12,7 +12,7 @@ of `exᵢ`.  Throw an error if everything is evaluated to `nothing`.
 
 # Examples
 ```jldoctest
-julia> using Maybe
+julia> using Maybe: @something
 
 julia> @something(
            (println("first"); nothing),
@@ -43,7 +43,9 @@ Since `@something` is often used with [`@?`](@ref), the form
 `@something {ex₁; ex₂; ...; exₙ}` can also be used to avoid extra
 parentheses:
 
-```jldoctest; setup = :(using Maybe)
+```jldoctest
+julia> using Maybe: @something, @?
+
 julia> d = Dict(:a => Dict(:b => 1, :c => nothing));
 
 julia> @something {
