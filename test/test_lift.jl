@@ -98,7 +98,7 @@ end
 end
 
 @testset "splatting (keyword arguments)" begin
-    t(; kwargs...) = kwargs.data
+    t(; kwargs...) = values(kwargs)
     f() = nothing
     g() = (a = 1, b = 2)
     h() = Some((a = 1, b = 2))
@@ -116,7 +116,7 @@ end
 end
 
 @testset "splatting (mixed)" begin
-    t(args...; kwargs...) = (args, kwargs.data)
+    t(args...; kwargs...) = (args, values(kwargs))
     f() = nothing
     gt() = (1, 2)
     ht() = Some((1, 2))
@@ -191,7 +191,7 @@ end
 end
 
 struct Indexable end
-Base.getindex(::Indexable, args...; kwargs...) = (args, kwargs.data)
+Base.getindex(::Indexable, args...; kwargs...) = (args, values(kwargs))
 
 @testset "Indexable" begin
     A = Indexable()
