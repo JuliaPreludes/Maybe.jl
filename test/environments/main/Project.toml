@@ -2,6 +2,7 @@
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+ExternalDocstrings = "e189563c-0753-4f5e-ad5c-be4293c83fb4"
 LiterateTest = "d77d25b0-90d3-4a16-b10a-412a9d48f625"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Maybe = "334f122f-1118-46cc-837f-bff747ee6f78"
