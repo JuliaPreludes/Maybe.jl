@@ -11,6 +11,7 @@ ExternalDocstrings = "e189563c-0753-4f5e-ad5c-be4293c83fb4"
 [compat]
 Compat = "2, 3"
 ExprTools = "0.1"
+ExternalDocstrings = "0.1"
 julia = "1"
 
 [extras]
