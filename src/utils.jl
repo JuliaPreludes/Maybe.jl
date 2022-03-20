@@ -60,5 +60,4 @@ function finalize_package()
         const $(Symbol("@?")) = Implementations.$(Symbol("@?"))
         export $(Symbol("@?"))
     end
-    define_docstrings()
 end
