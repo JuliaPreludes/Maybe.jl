@@ -23,4 +23,4 @@ makedocs(
     ],
 )
 
-deploydocs(; repo = "github.com/tkf/Maybe.jl", push_preview = true)
+deploydocs(; repo = "github.com/JuliaPreludes/Maybe.jl", push_preview = true)
