@@ -31,34 +31,10 @@ function finalize_implementations()
     define_liftr()
 end
 
-# See ThreadsX.jl
-function define_docstrings()
-    docstrings = Pair[:Maybe=>joinpath(dirname(@__DIR__), "README.md")]
-    docsdir = joinpath(@__DIR__, "docs")
-    for filename in readdir(docsdir)
-        stem, ext = splitext(filename)
-        ext == ".md" || continue
-        name = Symbol(stem)
-        if name in names(Maybe, all = true)
-            push!(docstrings, name => joinpath(docsdir, filename))
-        elseif name in names(Maybe.Extras, all = true)
-            push!(docstrings, :(Extras.$name) => joinpath(docsdir, filename))
-        end
-    end
-    for (name, path) in docstrings
-        include_dependency(path)
-        doc = read(path, String)
-        doc = replace(doc, r"^```julia"m => "```jldoctest $name")
-        doc = replace(doc, "<kbd>TAB</kbd>" => "_TAB_")
-        @eval Maybe $Base.@doc $doc $name
-    end
-end
-
 function finalize_package()
     @eval Maybe begin
         const T = Implementations.MaybeType
         const $(Symbol("@?")) = Implementations.$(Symbol("@?"))
         export $(Symbol("@?"))
     end
-    define_docstrings()
 end

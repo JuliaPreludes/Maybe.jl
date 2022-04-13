@@ -39,6 +39,7 @@ using ..Maybe: Maybe
 using Base: @propagate_inbounds
 using Base.Meta: isexpr
 using ExprTools: combinedef, splitdef
+using ExternalDocstrings: @define_docstrings
 
 import ..Maybe: @something
 
@@ -65,5 +66,6 @@ finalize_implementations()
 end
 
 Implementations.finalize_package()
+Implementations.@define_docstrings
 
 end
