@@ -13,6 +13,9 @@ function get end
 function getindex end
 function getproperty end
 
+function ok end
+function err end
+
 function _break end
 
 """
@@ -40,6 +43,7 @@ using Base: @propagate_inbounds
 using Base.Meta: isexpr
 using ExprTools: combinedef, splitdef
 using ExternalDocstrings: @define_docstrings
+using Try: Try
 
 import ..Maybe: @something
 
@@ -61,6 +65,7 @@ include("utils.jl")
 include("lift.jl")
 include("something.jl")
 include("core.jl")
+include("try.jl")
 include("extras.jl")
 finalize_implementations()
 end

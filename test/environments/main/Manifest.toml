@@ -84,7 +84,7 @@ deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[Maybe]]
-deps = ["Compat", "ExprTools", "ExternalDocstrings"]
+deps = ["Compat", "ExprTools", "ExternalDocstrings", "Try"]
 path = "../../.."
 uuid = "334f122f-1118-46cc-837f-bff747ee6f78"
 version = "0.1.0"
@@ -138,6 +138,11 @@ uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
 uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[[Try]]
+git-tree-sha1 = "c2b968d6286af6390aa877c073defc05ed99b279"
+uuid = "bf1d0ff0-c4a9-496b-85f0-2b0d71c4f32a"
+version = "0.1.0"
 
 [[UUIDs]]
 deps = ["Random", "SHA"]
