@@ -10,7 +10,7 @@ ExternalDocstrings = "e189563c-0753-4f5e-ad5c-be4293c83fb4"
 Try = "bf1d0ff0-c4a9-496b-85f0-2b0d71c4f32a"
 
 [compat]
-Compat = "2, 3"
+Compat = "2, 3, 4"
 ExprTools = "0.1"
 ExternalDocstrings = "0.1"
 Try = "0.1"
