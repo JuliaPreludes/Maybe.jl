@@ -26,3 +26,11 @@ Maybe.Extras.defaultto(c) = Maybe.Extras.ifnothing(() -> c)
 @inline Maybe.Extras.getnested(x, k, keys...) =
     Maybe.Extras.getnested(@something(Maybe.get(x, k), return), keys...)
 @inline Maybe.Extras.getnested(x) = Some(x)
+
+Maybe.Extras.definite(x) = x
+Maybe.Extras.definite(x::Some) = Maybe.Extras.definite(something(x))
+
+Maybe.Extras.asmissing(x) = something(Maybe.Extras.definite(x), missing)
+
+Maybe.Extras.frommissing(::Missing) = nothing
+Maybe.Extras.frommissing(x) = Some(x)

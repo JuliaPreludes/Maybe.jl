@@ -28,11 +28,14 @@ Since there is no name clash with `Base` API, `using Maybe.Extras`
 imports the API defined in `Maybe.Extras`.
 """
 baremodule Extras
-export getnested, ifnothing, maybe, defaultto
+export asmissing, defaultto, definite, frommissing, getnested, ifnothing, maybe
 function maybe end
 function ifnothing end
 function defaultto end
 function getnested end
+function definite end
+function asmissing end
+function frommissing end
 end
 
 const X = Extras
